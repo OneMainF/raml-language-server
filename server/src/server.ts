@@ -137,7 +137,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		
 		connection.console.log(`Finished parsing model: ${model}`);
 
-		const validationResults = await amf.AMF.validateResolved(model, new amf.ProfileName("Test"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
+		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("Test"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
 
 		connection.console.log(`Finished validating model: ${validationResults}`);
 
