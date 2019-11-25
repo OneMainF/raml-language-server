@@ -49,9 +49,9 @@ connection.onInitialize((params: InitializeParams) => {
 	return {
 		capabilities: {
 			textDocumentSync: documents.syncKind,
-			// Tell the client that the server supports code completion
+			// Tell the client that the server does not support code completion
 			completionProvider: {
-				resolveProvider: true
+				resolveProvider: false
 			}
 		}
 	};
@@ -126,6 +126,8 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
+	connection.console.log("validateTextDocument");
+
 	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
 
@@ -163,8 +165,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 			let diagnostic: Diagnostic = {
 				severity: severity,
 				range: {
-					start: Position.create(validation.position.start.line, validation.position.start.column), //textDocument.positionAt(validation.position.start.column),
-					end: Position.create(validation.position.end.line, validation.position.end.column)//textDocument.positionAt(validation.position.end.column)
+					start: Position.create(validation.position.start.line, validation.position.start.column),
+					end: Position.create(validation.position.end.line, validation.position.end.column)
 				},
 				message: validation.message,
 				source: validation.source
@@ -192,7 +194,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		// Send the computed diagnostics to VSCode.
 		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-		amf.AMF.init();
+		// amf.AMF.init();
 
 	} catch (error) {
 		connection.console.log(`There was an error ${error}`);
@@ -200,46 +202,45 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 }
 
 connection.onDidChangeWatchedFiles(_change => {
-	connection.console.log("onDidChangeWatchedFiles");
 	// Monitored files have change in VSCode
 	connection.console.log('We received an file change event');
 });
 
 // This handler provides the initial list of the completion items.
-connection.onCompletion(
-	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
-		return [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
-		];
-	}
-);
+// connection.onCompletion(
+// 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+// 		// The pass parameter contains the position of the text document in
+// 		// which code complete got requested. For the example we ignore this
+// 		// info and always provide the same completion items.
+// 		return [
+// 			{
+// 				label: 'TypeScript',
+// 				kind: CompletionItemKind.Text,
+// 				data: 1
+// 			},
+// 			{
+// 				label: 'JavaScript',
+// 				kind: CompletionItemKind.Text,
+// 				data: 2
+// 			}
+// 		];
+// 	}
+// );
 
 // This handler resolves additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve(
-	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
-		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
-		}
-		return item;
-	}
-);
+// connection.onCompletionResolve(
+// 	(item: CompletionItem): CompletionItem => {
+// 		if (item.data === 1) {
+// 			item.detail = 'TypeScript details';
+// 			item.documentation = 'TypeScript documentation';
+// 		} else if (item.data === 2) {
+// 			item.detail = 'JavaScript details';
+// 			item.documentation = 'JavaScript documentation';
+// 		}
+// 		return item;
+// 	}
+// );
 
 /*
 connection.onDidOpenTextDocument((params) => {

@@ -1,15 +1,14 @@
 {
-	"name": "lsp-sample-server",
-	"description": "Example implementation of a language server in node.",
-	"version": "1.0.0",
-	"author": "Microsoft Corporation",
-	"license": "MIT",
+	"name": "raml-ls-server",
+	"description": "Implementation of raml language server in node.",
+	"version": "0.0.1",
+	"author": "Donovon Simpson",
 	"engines": {
 		"node": "*"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/dtsimpson2/raml-lsp"
 	},
 	"dependencies": {
 		"vscode-languageserver": "^5.2.1",
