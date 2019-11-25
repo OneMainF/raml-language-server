@@ -1,14 +1,8 @@
-# LSP Example
+# RAML Language Server
 
-Heavily documented sample code for https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+This is an extension for VS Code that performs real time validation on RAML files. It is currently a work in progress and not published for use. Contributions are welcomed.
 
-## Functionality
-
-This Language Server works for plain text file. It has the following language features:
-- Completions
-- Diagnostics regenerated on each file change or configuration change
-
-It also includes an End-to-End test.
+This extension uses the [AML Modeling Framework](https://github.com/aml-org/amf/tree/master) to parse the files and provide realtime validation. Future state will also allow passing in custom validation documents to provide extended validation rules.
 
 ## Structure
 
