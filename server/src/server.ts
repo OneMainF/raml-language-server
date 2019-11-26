@@ -130,24 +130,22 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
+	let diagnostics: Diagnostic[] = [];
 
 	try {
 
 		const model: amf.model.document.BaseUnit = await amf.AMF.raml10Parser().parseStringAsync(textDocument.getText());
 		
-		connection.console.log(`Finished parsing model: ${model}`);
+		connection.console.log("Finished parsing model");
 
 		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("Test"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
 
-		connection.console.log(`Finished validating model: ${validationResults}`);
+		connection.console.log("Finished validating model");
 
-		// let problems = 0;
-		let diagnostics: Diagnostic[] = [];
 		for (let validation of validationResults.results) {
-			// problems++;
 
 			let severity: DiagnosticSeverity = DiagnosticSeverity.Error;
-			switch (validation.level){
+			switch (validation.level) {
 				case "Violation":
 					severity = DiagnosticSeverity.Error;
 					break;
@@ -165,40 +163,35 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 			let diagnostic: Diagnostic = {
 				severity: severity,
 				range: {
-					start: Position.create(validation.position.start.line, validation.position.start.column),
-					end: Position.create(validation.position.end.line, validation.position.end.column)
+					start: Position.create(validation.position.start.line - 1, validation.position.start.column),
+					end: Position.create(validation.position.end.line - 1, validation.position.end.column)
 				},
-				message: validation.message,
-				source: validation.source
+				message: validation.message
 			};
 
-			if (hasDiagnosticRelatedInformationCapability) {
-				diagnostic.relatedInformation = [
-					{
-						location: {
-							uri: textDocument.uri,
-							range: Object.assign({}, diagnostic.range)
-						},
-						message: diagnostic.message
-					}
-				];
-			}
-
-			connection.console.log(`New diagnostic: ${diagnostic}`);
+			// if (hasDiagnosticRelatedInformationCapability) {
+			// 	diagnostic.relatedInformation = [
+			// 		{
+			// 			location: {
+			// 				uri: textDocument.uri,
+			// 				range: Object.assign({}, diagnostic.range)
+			// 			},
+			// 			message: diagnostic.message
+			// 		}
+			// 	];
+			// }
 
 			diagnostics.push(diagnostic);
 		}
 
 		connection.console.log(`Diagnostic Count: ${diagnostics.length}`);
 
-		// Send the computed diagnostics to VSCode.
-		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-
-		// amf.AMF.init();
-
 	} catch (error) {
 		connection.console.log(`There was an error ${error}`);
 	}
+
+	// Send the computed diagnostics to VSCode.
+	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles(_change => {
