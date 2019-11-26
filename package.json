@@ -9,7 +9,9 @@
 		"type": "git",
 		"url": "https://github.com/dtsimpson2/raml-lsp"
 	},
-	"categories": ["Programming Languages"],
+	"categories": [
+		"Programming Languages"
+	],
 	"keywords": [
 		"multi-root ready",
 		"raml"
@@ -21,7 +23,9 @@
 		"onLanguage:raml"
 	],
 	"main": "./client/out/extension",
-	"extensionDependencies": ["jeppeandersen.raml"],
+	"extensionDependencies": [
+		"jeppeandersen.raml"
+	],
 	"contributes": {
 		"configuration": {
 			"type": "object",
@@ -68,9 +72,9 @@
 		"test": "sh ./scripts/e2e.sh"
 	},
 	"devDependencies": {
-		"@types/mocha": "^5.2.0",
-		"@types/node": "^8.0.0",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.11.7",
 		"tslint": "^5.16.0",
-		"typescript": "^3.5.1"
+		"typescript": "^3.6.4"
 	}
 }
