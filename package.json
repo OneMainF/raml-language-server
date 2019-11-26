@@ -1,9 +1,9 @@
 {
-	"name": "raml-lsp",
+	"name": "raml-ls",
 	"displayName": "RAML Language Server",
 	"description": "A RAML Language Server",
-	"publisher": "Donovon Simpson",
-	"license": "MIT",
+	"publisher": "Donovon-OMF",
+	"license": "GNU",
 	"version": "0.0.1",
 	"repository": {
 		"type": "git",
