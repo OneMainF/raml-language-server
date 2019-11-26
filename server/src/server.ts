@@ -105,7 +105,7 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 	if (!result) {
 		result = connection.workspace.getConfiguration({
 			scopeUri: resource,
-			section: 'languageServerExample'
+			section: 'RAML-LS'
 		});
 		documentSettings.set(resource, result);
 	}
@@ -138,7 +138,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		
 		connection.console.log("Finished parsing model");
 
-		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("Test"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
+		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("RAML"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
 
 		connection.console.log("Finished validating model");
 
