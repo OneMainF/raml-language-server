@@ -1,0 +1,9 @@
+{
+  "transaction.id": "3c4d3240-e466-11e9-910c-6a3820524153",
+  "correlationId": "3c4d3240-e466-11e9-910c-6a3820524153",
+  "timestamp": "2019-10-01T11:12:16.109-05:00",
+  "errorDetail": {
+    "code": 404,
+    "message": "<insert not found message here>"
+  }
+}

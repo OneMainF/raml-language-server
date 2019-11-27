@@ -1,0 +1,30 @@
+#%RAML 1.0
+version: v1
+title: sample-api
+
+types: 
+  user: !include types/user.raml
+  standard-error-response: !include types/standard-error-response.raml
+
+/users:
+  get:
+    description: Search for a user
+    queryParameters: 
+      first_name:
+        description: the first name of the user to search for
+        type: string 
+        required: false
+    responses: 
+      200:
+        description: Successfully retrieved users
+        body: 
+          application/json:
+            type: user[]
+            example: !include examples/get-user-example.json
+      204:
+        description: No content
+        body: 
+          application/json:
+            type: standard-error-response
+            example: !include examples/204-error-example.json
+  

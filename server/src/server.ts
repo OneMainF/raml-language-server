@@ -1,3 +1,4 @@
+// import all vs code classes needed
 import {
 	createConnection,
 	TextDocuments,
@@ -13,8 +14,12 @@ import {
 	Position
 } from 'vscode-languageserver';
 
+// impost the amf library for use
 import * as amf from 'amf-client-js';
 
+import * as path from 'path';
+
+// must init the AMF library to use it for parsing and validation
 amf.AMF.init();
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -130,12 +135,27 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
+
+	let documentURI: string = textDocument.uri;
+
+	connection.console.log(documentURI);
+
+	documentURI = documentURI.replace("%3A", ":");
+
+	connection.console.log(documentURI);
+
+	documentURI = path.posix.normalize(documentURI);
+
+	documentURI = documentURI.replace("file:/", "");
+
+	connection.console.log(documentURI);
+
 	let diagnostics: Diagnostic[] = [];
 
 	try {
 
-		const model: amf.model.document.BaseUnit = await amf.AMF.raml10Parser().parseStringAsync(textDocument.getText());
-		
+		const model: amf.model.document.BaseUnit = await amf.AMF.raml10Parser().parseStringAsync(documentURI, textDocument.getText());
+
 		connection.console.log("Finished parsing model");
 
 		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("RAML"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
@@ -149,13 +169,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 				case "Violation":
 					severity = DiagnosticSeverity.Error;
 					break;
-				case "Warning": 
+				case "Warning":
 					severity = DiagnosticSeverity.Warning;
 					break;
 				case "Info":
 					severity = DiagnosticSeverity.Information;
 					break;
-				default: 
+				default:
 					console.log(`Error: Unknown validation level: ${validation.level}`);
 					break;
 			}

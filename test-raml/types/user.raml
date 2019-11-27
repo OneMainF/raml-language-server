@@ -1,0 +1,19 @@
+#%RAML 1.0 DataType
+
+description: A full user with notification preferences and devices
+properties:
+  user_type:
+    description: Type of the user and their id
+    type: string
+  user_id:
+    description: User's id for their user type (e.g. customer id, employee id, ...)
+    type: string
+    pattern: ^\d{1,20}$
+  preferences?:
+    description: Array of preferences for the user
+    type: array
+    items: !include preference.raml
+  devices?:
+    description: Array of devices registered to the user
+    type: array
+    items: !include device.raml
