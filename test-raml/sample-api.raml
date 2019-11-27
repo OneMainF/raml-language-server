@@ -12,11 +12,11 @@ types:
     queryParameters: 
       first_name:
         description: the first name of the user to search for
-        type: string 
+        type: number
         required: false
     responses: 
       200:
-        description: Successfully retrieved users
+        description: Users that match the search results
         body: 
           application/json:
             type: user[]

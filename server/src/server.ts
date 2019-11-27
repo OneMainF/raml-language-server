@@ -141,14 +141,15 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	connection.console.log(documentURI);
 
 	documentURI = documentURI.replace("%3A", ":");
+	documentURI = documentURI.replace("c:/", "/");
 
 	connection.console.log(documentURI);
 
 	documentURI = path.posix.normalize(documentURI);
 
-	documentURI = documentURI.replace("file:/", "");
-
 	connection.console.log(documentURI);
+
+	connection.console.log(path.posix.resolve(documentURI));
 
 	let diagnostics: Diagnostic[] = [];
 
