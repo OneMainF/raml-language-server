@@ -19,9 +19,6 @@ import * as amf from 'amf-client-js';
 
 import * as path from 'path';
 
-// must init the AMF library to use it for parsing and validation
-amf.AMF.init();
-
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all);
@@ -72,6 +69,12 @@ connection.onInitialized(() => {
 			connection.console.log('Workspace folder change event received.');
 		});
 	}
+
+	// must init the AMF library to use it for parsing and validation
+	amf.AMF.init();
+
+	// fetch the RAML validation profile now to reuse it often
+	amfProfile = new amf.ProfileName("RAML");
 });
 
 // The example settings
@@ -85,6 +88,8 @@ interface ExampleSettings {
 const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: ExampleSettings = defaultSettings;
 
+let amfProfile: amf.ProfileName;
+
 // Cache the settings of all open documents
 let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
 
@@ -94,7 +99,7 @@ connection.onDidChangeConfiguration(change => {
 		documentSettings.clear();
 	} else {
 		globalSettings = <ExampleSettings>(
-			(change.settings.languageServerExample || defaultSettings)
+			change.settings.languageServerExample || defaultSettings
 		);
 	}
 
@@ -134,32 +139,21 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	connection.console.log("validateTextDocument");
 
 	// In this simple example we get the settings for every validate run.
-	let settings = await getDocumentSettings(textDocument.uri);
+	// let settings = await getDocumentSettings(textDocument.uri);
 
-	let documentURI: string = textDocument.uri;
-
-	connection.console.log(documentURI);
-
-	documentURI = documentURI.replace("%3A", ":");
-	documentURI = documentURI.replace("c:/", "/");
-
-	connection.console.log(documentURI);
-
-	documentURI = path.posix.normalize(documentURI);
-
-	connection.console.log(documentURI);
-
-	connection.console.log(path.posix.resolve(documentURI));
+	// normalize the path returned from vs code so it can be passed into the parser
+	let documentURI: string = await normalizeURI(textDocument.uri);
 
 	let diagnostics: Diagnostic[] = [];
 
 	try {
 
+		// parse the document at the uri location but with the working copy of the contents (the file may not be saved yet so we can't check the actual contents)
 		const model: amf.model.document.BaseUnit = await amf.AMF.raml10Parser().parseStringAsync(documentURI, textDocument.getText());
 
 		connection.console.log("Finished parsing model");
 
-		const validationResults = await amf.AMF.validate(model, new amf.ProfileName("RAML"), amf.MessageStyles.RAML, new amf.client.environment.Environment());
+		const validationResults = await amf.AMF.validate(model, amfProfile, amf.MessageStyles.RAML, new amf.client.environment.Environment());
 
 		connection.console.log("Finished validating model");
 
@@ -213,6 +207,18 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+}
+
+async function normalizeURI(vscodeURI: string): Promise<string> {
+
+	// always remove the drive letter from a path on windows
+	let driveLetterReplace: RegExp = new RegExp("([a-zA-Z]%3A\\/)");
+	vscodeURI = vscodeURI.replace(driveLetterReplace, "/");
+
+	// normalize the path to the linux format to remove extra slashes
+	vscodeURI = path.posix.normalize(vscodeURI);
+
+	return vscodeURI;
 }
 
 connection.onDidChangeWatchedFiles(_change => {
