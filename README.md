@@ -1,29 +1,17 @@
 # RAML Language Server
 
-This is an extension for VS Code that performs real time validation on RAML files. It is currently a work in progress and not published for use. Contributions are welcomed.
+## Installation
+To install, open the VS Code Marketplace or Extension Manager and select install. 
 
-This extension uses the [AML Modeling Framework](https://github.com/aml-org/amf/tree/master) to parse the files and provide realtime validation. Future state will also allow passing in custom validation documents to provide extended validation rules.
+## Usage
+The RAML Language Server will automatically start when you open a file with the .raml file extension. Just open the file and begin working! Automatically detected errors will show as underlined tips right in the file, as well as in the Problems panel in VS Code. Simply hover over the underlinded section of the file to get real time hints.
 
-## Structure
+## Powered by the AML Modeling Framework
+This extension is powered by the OpenSource Library maintained by AML called [AMF](https://github.com/aml-org/amf/tree/master).
 
-```
-.
-├── client // Language Client
-│   ├── src
-│   │   ├── test // End to End tests for Language Client / Server
-│   │   └── extension.ts // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
-    └── src
-        └── server.ts // Language Server entry point
-```
+### AMF Version
+- 0.3.5
 
-## Running the Sample
-
-- Run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
-- Open VS Code on this folder.
-- Press Ctrl+Shift+B to compile the client and server.
-- Switch to the Debug viewlet.
-- Select `Launch Client` from the drop down.
-- Run the launch config.
-- If you want to debug the server as well use the launch configuration `Attach to Server`
+## What's New
+- Support for external references in RAML via the !includes keyword.
+- Performance improvements
