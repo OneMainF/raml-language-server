@@ -4,7 +4,7 @@
 	"description": "A RAML Language Server",
 	"publisher": "Donovon-OMF",
 	"license": "GNU",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/dtsimpson2/raml-lsp"
@@ -14,7 +14,10 @@
 	],
 	"keywords": [
 		"multi-root ready",
-		"raml"
+		"raml",
+		"RAML 1.0",
+		"language server",
+		"lsp"
 	],
 	"engines": {
 		"vscode": "^1.33.0"
