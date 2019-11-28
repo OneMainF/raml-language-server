@@ -11,7 +11,8 @@ import {
 	CompletionItem,
 	CompletionItemKind,
 	TextDocumentPositionParams,
-	Position
+	Position,
+	Range
 } from 'vscode-languageserver';
 
 // impost the amf library for use
@@ -175,26 +176,48 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 					break;
 			}
 
+			// default the error location to the range from the parser
+			let errorRange: Range = {
+				start: Position.create(validation.position.start.line - 1, validation.position.start.column),
+				end: Position.create(validation.position.end.line - 1, validation.position.end.column)
+			};
+
+			// store related diagnostic information
+			let relatedMessage: string = "";
+
+			// make sure the reported error is in the current document
+			if (await normalizeURI(validation.location) !== documentURI) {
+
+				// tell user where the error actually is
+				relatedMessage = `Error located in referenced file: ${validation.location}`
+
+				// since we don't know where the file is referenced from the current file, 
+				// position the error on the first line
+				errorRange = {
+					start: Position.create(0, 0),
+					end: Position.create(0, Number.MAX_VALUE)
+				}
+			}
+
 			let diagnostic: Diagnostic = {
 				severity: severity,
-				range: {
-					start: Position.create(validation.position.start.line - 1, validation.position.start.column),
-					end: Position.create(validation.position.end.line - 1, validation.position.end.column)
-				},
+				range: errorRange,
 				message: validation.message
 			};
 
-			// if (hasDiagnosticRelatedInformationCapability) {
-			// 	diagnostic.relatedInformation = [
-			// 		{
-			// 			location: {
-			// 				uri: textDocument.uri,
-			// 				range: Object.assign({}, diagnostic.range)
-			// 			},
-			// 			message: diagnostic.message
-			// 		}
-			// 	];
-			// }
+			if (hasDiagnosticRelatedInformationCapability) {
+				// only need this related information if the message is not null
+				if (relatedMessage !== "")
+					diagnostic.relatedInformation = [
+						{
+							location: {
+								uri: textDocument.uri,
+								range: Object.assign({}, diagnostic.range)
+							},
+							message: relatedMessage
+						}
+					];
+			}
 
 			diagnostics.push(diagnostic);
 		}
