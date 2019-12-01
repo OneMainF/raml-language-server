@@ -1,6 +1,8 @@
-{
-	"first_name": "John",
-	"last_name": "Smith",
-	"user_type": "Customer",
-	"user_id": "12345678"
-}
+[
+	{
+		"first_name": "John",
+		"last_name": "Smith",
+		"user_type": "Customer",
+		"user_id": "12345678"
+	}
+]

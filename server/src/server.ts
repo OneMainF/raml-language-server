@@ -15,7 +15,7 @@ import {
 	Range
 } from 'vscode-languageserver';
 
-// impost the amf library for use
+// import the amf library to handle RAML parsing
 import * as amf from 'amf-client-js';
 
 import * as path from 'path';
@@ -79,28 +79,33 @@ connection.onInitialized(() => {
 });
 
 // The example settings
-interface ExampleSettings {
-	maxNumberOfProblems: number;
+interface Settings {
+	validation: Validation;
+}
+
+interface Validation {
+	rules: string;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
+const defaultSettings: Settings = { validation: { rules: "" } };
+let globalSettings: Settings = defaultSettings;
 
 let amfProfile: amf.ProfileName;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+let documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration(change => {
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
 		documentSettings.clear();
 	} else {
-		globalSettings = <ExampleSettings>(
-			change.settings.languageServerExample || defaultSettings
+		// NOTE: VS Code will not run this code block, therefore this is UNTESTED
+		globalSettings = <Settings>(
+			change.settings.RAML_LS || defaultSettings
 		);
 	}
 
@@ -108,7 +113,7 @@ connection.onDidChangeConfiguration(change => {
 	documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+function getDocumentSettings(resource: string): Thenable<Settings> {
 	if (!hasConfigurationCapability) {
 		return Promise.resolve(globalSettings);
 	}
@@ -136,15 +141,21 @@ documents.onDidChangeContent(change => {
 	validateTextDocument(change.document);
 });
 
+documents.onDidSave(change => {
+	connection.console.log("onDidSave");
+	documents.all().forEach(validateTextDocument);
+});
+
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	connection.console.log("validateTextDocument");
 
 	// In this simple example we get the settings for every validate run.
-	// let settings = await getDocumentSettings(textDocument.uri);
+	let settings = await getDocumentSettings(textDocument.uri);
 
 	// normalize the path returned from vs code so it can be passed into the parser
 	let documentURI: string = await normalizeURI(textDocument.uri);
 
+	// cache list of diagnostics to return to IDE
 	let diagnostics: Diagnostic[] = [];
 
 	try {
@@ -154,7 +165,14 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 		connection.console.log("Finished parsing model");
 
-		const validationResults = await amf.AMF.validate(model, amfProfile, amf.MessageStyles.RAML, new amf.client.environment.Environment());
+		let validationResults: amf.client.validate.ValidationReport;
+		if (settings.validation.rules) { //&& fs.existsSync(settings.validation.rules))
+			amfProfile = <amf.ProfileName>(<unknown>await amf.AMF.loadValidationProfile(settings.validation.rules));
+			validationResults = await amf.AMF.validate(model, amfProfile, amf.MessageStyles.RAML);
+		}
+		else {
+			validationResults = await amf.AMF.validate(model, amf.ProfileNames.RAML, amf.MessageStyles.RAML);
+		}
 
 		connection.console.log("Finished validating model");
 

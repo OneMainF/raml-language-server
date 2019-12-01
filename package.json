@@ -4,7 +4,7 @@
 	"description": "A RAML Language Server",
 	"publisher": "Donovon-OMF",
 	"license": "GNU",
-	"version": "0.0.2",
+	"version": "0.1.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/dtsimpson2/raml-lsp"
@@ -34,11 +34,11 @@
 			"type": "object",
 			"title": "RAML LS",
 			"properties": {
-				"RAML-LS.maxNumberOfProblems": {
-					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
+				"RAML-LS.validation.rules": {
+					"scope": "window",
+					"type": "string",
+					"default": "",
+					"description": "Path to a RAML Validation document. See https://github.com/aml-org/amf/blob/develop/documentation/validation.md for more infomation."
 				},
 				"RAML-LS.trace.server": {
 					"scope": "window",
