@@ -2,7 +2,7 @@
 	"name": "raml-ls-client",
 	"description": "VSCode part of a language server",
 	"author": "Donovon Simpson",
-	"version": "0.0.3",
+	"version": "0.1.0",
 	"publisher": "vscode",
 	"repository": {
 		"type": "git",

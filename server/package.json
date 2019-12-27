@@ -1,7 +1,7 @@
 {
 	"name": "raml-ls-server",
 	"description": "Implementation of raml language server in node.",
-	"version": "0.0.3",
+	"version": "0.1.0",
 	"author": "Donovon Simpson",
 	"engines": {
 		"node": "*"
