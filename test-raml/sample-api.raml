@@ -1,10 +1,6 @@
 #%RAML 1.0
-version: v1
+version: wrong
 title: sample-api
-
-types: 
-  user: !include types/user.raml
-  standard-error-response: !include types/standard-error-response.raml
 
 /users:
   get:
@@ -19,12 +15,8 @@ types:
         description: Users that match the search results
         body: 
           application/json:
-            type: user[]
-            example: !include examples/get-user-example.json
       204:
         description: No content
         body: 
           application/json:
-            type: standard-error-response
-            example: !include examples/204-error-example.json
   
