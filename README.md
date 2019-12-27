@@ -14,6 +14,7 @@ This extension is powered by the OpenSource Library maintained by AML called [AM
 
 ## What's New
 - Moved under a new publisher called `OneMain`
+- Updated to the newest version of AMF to add new validation types.
 - Internal code structure changes to increase performance and maintainability.
 - Added another validation event when a RAML file is saved to revalidate all RAML files. This is to aid with the AMF bug that prevents validation on working copies of the document.
 
