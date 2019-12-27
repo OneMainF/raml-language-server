@@ -1,5 +1,7 @@
 # RAML Language Server
 
+> The RAML Language Server has moved publishers. You can now find it under `OneMain` instead of `Donovon-OMF`.
+
 ## Installation
 To install, open the VS Code Marketplace or Extension Manager and select install. 
 
@@ -10,7 +12,7 @@ The RAML Language Server will automatically start when you open a file with the 
 This extension is powered by the OpenSource Library maintained by AML called [AMF](https://github.com/aml-org/amf/tree/master).
 
 ### AMF Version
-- 0.3.5
+- 4.0.2
 
 ## What's New
 - Support for external references in RAML via the !includes keyword.

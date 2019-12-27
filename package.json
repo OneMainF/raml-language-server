@@ -4,10 +4,10 @@
 	"description": "A RAML Language Server",
 	"publisher": "Donovon-OMF",
 	"license": "GNU",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/dtsimpson2/raml-lsp"
+		"url": "https://github.com/OneMainF/raml-language-server"
 	},
 	"categories": [
 		"Programming Languages"
@@ -53,19 +53,17 @@
 				}
 			}
 		},
-		"languages": [
-			{
-				"id": "raml",
-				"extensions": [
-					".raml"
-				],
-				"aliases": [
-					"RAML",
-					"raml",
-					"RAML 1.0"
-				]
-			}
-		]
+		"languages": [{
+			"id": "raml",
+			"extensions": [
+				".raml"
+			],
+			"aliases": [
+				"RAML",
+				"raml",
+				"RAML 1.0"
+			]
+		}]
 	},
 	"scripts": {
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",

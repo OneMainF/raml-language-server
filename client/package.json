@@ -2,11 +2,11 @@
 	"name": "raml-ls-client",
 	"description": "VSCode part of a language server",
 	"author": "Donovon Simpson",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"publisher": "vscode",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/dtsimpson2/raml-lsp"
+		"url": "https://github.com/OneMainF/raml-language-server"
 	},
 	"engines": {
 		"vscode": "^1.33.0"
