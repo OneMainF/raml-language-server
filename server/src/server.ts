@@ -3,22 +3,16 @@ import {
 	createConnection,
 	TextDocuments,
 	TextDocument,
-	Diagnostic,
-	DiagnosticSeverity,
 	ProposedFeatures,
 	InitializeParams,
 	DidChangeConfigurationNotification,
 	CompletionItem,
-	CompletionItemKind,
-	TextDocumentPositionParams,
-	Position,
-	Range
+	CompletionItemKind
 } from 'vscode-languageserver';
 
-// impost the amf library for use
-import * as amf from 'amf-client-js';
+import Settings from "./lib/Settings/Settings";
 
-import * as path from 'path';
+import ValidateFile from "./lib/ValidateFile";
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -31,6 +25,8 @@ let documents: TextDocuments = new TextDocuments();
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;
 let hasDiagnosticRelatedInformationCapability: boolean = false;
+
+let validateFile: ValidateFile;
 
 connection.onInitialize((params: InitializeParams) => {
 	let capabilities = params.capabilities;
@@ -71,36 +67,26 @@ connection.onInitialized(() => {
 		});
 	}
 
-	// must init the AMF library to use it for parsing and validation
-	amf.AMF.init();
+	validateFile = new ValidateFile(hasDiagnosticRelatedInformationCapability);
 
-	// fetch the RAML validation profile now to reuse it often
-	amfProfile = new amf.ProfileName("RAML");
 });
-
-// The example settings
-interface ExampleSettings {
-	maxNumberOfProblems: number;
-}
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
-
-let amfProfile: amf.ProfileName;
+const defaultSettings: Settings = { validation: { rules: "" } };
+let globalSettings: Settings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+let documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration(change => {
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
 		documentSettings.clear();
 	} else {
-		globalSettings = <ExampleSettings>(
-			change.settings.languageServerExample || defaultSettings
+		globalSettings = <Settings>(
+			change.settings.raml_ls || defaultSettings
 		);
 	}
 
@@ -108,7 +94,7 @@ connection.onDidChangeConfiguration(change => {
 	documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+function getDocumentSettings(resource: string): Thenable<Settings> {
 	if (!hasConfigurationCapability) {
 		return Promise.resolve(globalSettings);
 	}
@@ -136,112 +122,18 @@ documents.onDidChangeContent(change => {
 	validateTextDocument(change.document);
 });
 
-async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-	connection.console.log("validateTextDocument");
+documents.onDidSave(change => {
+	connection.console.log("onDidSave");
 
-	// In this simple example we get the settings for every validate run.
-	// let settings = await getDocumentSettings(textDocument.uri);
+	// Revalidate all open text documents
+	documents.all().forEach(validateTextDocument);
+});
 
-	// normalize the path returned from vs code so it can be passed into the parser
-	let documentURI: string = await normalizeURI(textDocument.uri);
-
-	let diagnostics: Diagnostic[] = [];
-
-	try {
-
-		// parse the document at the uri location but with the working copy of the contents (the file may not be saved yet so we can't check the actual contents)
-		const model: amf.model.document.BaseUnit = await amf.AMF.raml10Parser().parseStringAsync(documentURI, textDocument.getText());
-
-		connection.console.log("Finished parsing model");
-
-		const validationResults = await amf.AMF.validate(model, amfProfile, amf.MessageStyles.RAML, new amf.client.environment.Environment());
-
-		connection.console.log("Finished validating model");
-
-		for (let validation of validationResults.results) {
-
-			let severity: DiagnosticSeverity = DiagnosticSeverity.Error;
-			switch (validation.level) {
-				case "Violation":
-					severity = DiagnosticSeverity.Error;
-					break;
-				case "Warning":
-					severity = DiagnosticSeverity.Warning;
-					break;
-				case "Info":
-					severity = DiagnosticSeverity.Information;
-					break;
-				default:
-					console.log(`Error: Unknown validation level: ${validation.level}`);
-					break;
-			}
-
-			// default the error location to the range from the parser
-			let errorRange: Range = {
-				start: Position.create(validation.position.start.line - 1, validation.position.start.column),
-				end: Position.create(validation.position.end.line - 1, validation.position.end.column)
-			};
-
-			// store related diagnostic information
-			let relatedMessage: string = "";
-
-			// make sure the reported error is in the current document
-			if (await normalizeURI(validation.location) !== documentURI) {
-
-				// tell user where the error actually is
-				relatedMessage = `Error located in referenced file: ${validation.location}`
-
-				// since we don't know where the file is referenced from the current file, 
-				// position the error on the first line
-				errorRange = {
-					start: Position.create(0, 0),
-					end: Position.create(0, Number.MAX_VALUE)
-				}
-			}
-
-			let diagnostic: Diagnostic = {
-				severity: severity,
-				range: errorRange,
-				message: validation.message
-			};
-
-			if (hasDiagnosticRelatedInformationCapability) {
-				// only need this related information if the message is not null
-				if (relatedMessage !== "")
-					diagnostic.relatedInformation = [
-						{
-							location: {
-								uri: textDocument.uri,
-								range: Object.assign({}, diagnostic.range)
-							},
-							message: relatedMessage
-						}
-					];
-			}
-
-			diagnostics.push(diagnostic);
-		}
-
-		connection.console.log(`Diagnostic Count: ${diagnostics.length}`);
-
-	} catch (error) {
-		connection.console.log(`There was an error ${error}`);
-	}
-
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
-
-async function normalizeURI(vscodeURI: string): Promise<string> {
-
-	// always remove the drive letter from a path on windows
-	let driveLetterReplace: RegExp = new RegExp("([a-zA-Z]%3A\\/)");
-	vscodeURI = vscodeURI.replace(driveLetterReplace, "/");
-
-	// normalize the path to the linux format to remove extra slashes
-	vscodeURI = path.posix.normalize(vscodeURI);
-
-	return vscodeURI;
+async function validateTextDocument(document: TextDocument) {
+	connection.sendDiagnostics({
+		uri: document.uri,
+		diagnostics: await validateFile.validateTextDocument(connection, globalSettings, document)
+	});
 }
 
 connection.onDidChangeWatchedFiles(_change => {
