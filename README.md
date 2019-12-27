@@ -10,8 +10,10 @@ The RAML Language Server will automatically start when you open a file with the 
 This extension is powered by the OpenSource Library maintained by AML called [AMF](https://github.com/aml-org/amf/tree/master).
 
 ### AMF Version
-- 0.3.5
+- 4.0.2
 
 ## What's New
-- Support for external references in RAML via the !includes keyword.
-- Performance improvements
+- Moved under a new publisher called `OneMain`
+
+## Known Issues
+- There is a bug in the AMF core that does not allow the framework to read from working copies of the file. You must save your changes to the file, then make another edit to trigger a new validation.

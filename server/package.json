@@ -1,14 +1,14 @@
 {
 	"name": "raml-ls-server",
 	"description": "Implementation of raml language server in node.",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"author": "Donovon Simpson",
 	"engines": {
 		"node": "*"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/dtsimpson2/raml-lsp"
+		"url": "https://github.com/OneMainF/raml-language-server"
 	},
 	"dependencies": {
 		"vscode-languageserver": "^5.2.1",
