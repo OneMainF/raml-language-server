@@ -41,7 +41,7 @@ export function activate(context: ExtensionContext) {
 
 			let port = 8000;
 
-			startConsoleServer(workspace.rootPath, port);
+			startConsoleServer(consoleDir, port);
 
 			window.showInformationMessage(`Successfully started API Console server at http://127.0.0.1:${port}/`);
 		}
