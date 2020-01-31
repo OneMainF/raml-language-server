@@ -2,7 +2,7 @@
 	"name": "raml-ls-client",
 	"description": "VSCode part of a language server",
 	"author": "Donovon Simpson",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"publisher": "vscode",
 	"repository": {
 		"type": "git",
@@ -15,7 +15,15 @@
 		"update-vscode": "vscode-install",
 		"postinstall": "vscode-install"
 	},
+	"bundledDependencies": [
+		"@api-components/api-console-builder"
+	],
 	"dependencies": {
+		"@api-components/api-console-builder": "^2.0.4",
+		"amf-client-js": "4.0.3",
+		"api-console-builder": "^0.4.11",
+		"node-http-server": "8.1.2",
+		"open": "^7.0.1",
 		"vscode-languageclient": "^5.2.1"
 	},
 	"devDependencies": {

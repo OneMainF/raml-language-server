@@ -154,6 +154,8 @@ export default class ValidateFile {
 		// normalize the path to the linux format to remove extra slashes
 		vscodeURI = path.posix.normalize(vscodeURI);
 
+		vscodeURI = vscodeURI.replace("%20", " ");
+
 		return vscodeURI;
 	}
 

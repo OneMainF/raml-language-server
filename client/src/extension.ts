@@ -1,5 +1,6 @@
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+
+import { workspace, ExtensionContext, window, commands } from 'vscode';
 
 import {
 	LanguageClient,
@@ -8,9 +9,60 @@ import {
 	TransportKind
 } from 'vscode-languageclient';
 
+import {
+	RAMLAPIProvider,
+	RAMLAPI
+} from './lib/ramlAPIs';
+
+import bundleAPI from './lib/bundleAPIConsole';
+
+import startConsoleServer from './lib/startConsoleServer';
+
 let client: LanguageClient;
+let consoleDir: string = ".build";
 
 export function activate(context: ExtensionContext) {
+
+	//#region API console
+
+	// fully qualify the path the the build directory
+	if (workspace.workspaceFolders) {
+		let workspaceRoot = path.normalize(workspace.workspaceFolders[0].uri.fsPath);
+
+		consoleDir = path.join(workspaceRoot, consoleDir);
+
+		// Create the implementation of the pane in the explorer
+		const RAMLAPIsProvider = new RAMLAPIProvider(workspaceRoot);
+		window.registerTreeDataProvider('apiConsole', RAMLAPIsProvider);
+
+		// When the console icon is selected on an item in the pane, run this to build the API and start the server
+		commands.registerCommand('apiConsole.openConsole', async (api: RAMLAPI) => {
+			try {
+				window.showInformationMessage(`Building and starting API Console on ${api.label}. This may take a moment.`);
+
+				await bundleAPI(consoleDir, api);
+
+				// window.showInformationMessage(`Successfully bundled API Console on ${api.label}.`);
+
+				let port = 8000;
+
+				startConsoleServer(consoleDir, port);
+
+				window.showInformationMessage(`Successfully started API Console server at http://127.0.0.1:${port}/`);
+			}
+			catch (e) {
+				window.showInformationMessage(`Failed to bundle API Console on ${api.label}.\n\r${e.message}`);
+			}
+		});
+
+		// when the refresh button is used at the top of the API Console pane, run the refresh method in the implementation class
+		commands.registerCommand('apiConsole.refreshEntry', () => RAMLAPIsProvider.refresh());
+	}
+
+	//#endregion
+
+	//#region Language Server
+
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
@@ -50,6 +102,8 @@ export function activate(context: ExtensionContext) {
 
 	// Start the client. This will also launch the server
 	client.start();
+
+	//#endregion
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -58,3 +112,4 @@ export function deactivate(): Thenable<void> | undefined {
 	}
 	return client.stop();
 }
+
