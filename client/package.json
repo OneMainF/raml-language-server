@@ -19,7 +19,7 @@
 		"@api-components/api-console-builder"
 	],
 	"dependencies": {
-		"@api-components/api-console-builder": "^2.0.3",
+		"@api-components/api-console-builder": "^2.0.4",
 		"amf-client-js": "4.0.3",
 		"api-console-builder": "^0.4.11",
 		"node-http-server": "8.1.2",

@@ -38,7 +38,7 @@ export class RAMLAPIProvider implements vscode.TreeDataProvider<RAMLAPI> {
 
 		let apis: RAMLAPI[] = [];
 
-		if (this.pathExists(workspaceDir)) {
+		if (fs.existsSync(workspaceDir)) {
 
 			let filesList = fs.readdirSync(workspaceDir);
 			for (let file of filesList) {
@@ -69,16 +69,6 @@ export class RAMLAPIProvider implements vscode.TreeDataProvider<RAMLAPI> {
 		} else {
 			return [];
 		}
-	}
-
-	private pathExists(p: string): boolean {
-		try {
-			fs.accessSync(p);
-		} catch (err) {
-			return false;
-		}
-
-		return true;
 	}
 }
 

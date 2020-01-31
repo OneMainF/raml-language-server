@@ -26,32 +26,38 @@ export function activate(context: ExtensionContext) {
 	//#region API console
 
 	// fully qualify the path the the build directory
-	consoleDir = path.join(workspace.rootPath, consoleDir);
+	if (workspace.workspaceFolders) {
+		let workspaceRoot = path.normalize(workspace.workspaceFolders[0].uri.fsPath);
 
-	// Create the implementation of the pane in the explorer
-	const RAMLAPIsProvider = new RAMLAPIProvider(workspace.rootPath);
-	window.registerTreeDataProvider('apiConsole', RAMLAPIsProvider);
+		consoleDir = path.join(workspaceRoot, consoleDir);
 
-	// When the console icon is selected on an item in the pane, run this to build the API and start the server
-	commands.registerCommand('apiConsole.openConsole', async (api: RAMLAPI) => {
-		try {
-			await bundleAPI(consoleDir, api);
+		// Create the implementation of the pane in the explorer
+		const RAMLAPIsProvider = new RAMLAPIProvider(workspaceRoot);
+		window.registerTreeDataProvider('apiConsole', RAMLAPIsProvider);
 
-			window.showInformationMessage(`Successfully bundled API Console on ${api.label}.`);
+		// When the console icon is selected on an item in the pane, run this to build the API and start the server
+		commands.registerCommand('apiConsole.openConsole', async (api: RAMLAPI) => {
+			try {
+				window.showInformationMessage(`Building and starting API Console on ${api.label}. This may take a moment.`);
 
-			let port = 8000;
+				await bundleAPI(consoleDir, api);
 
-			startConsoleServer(consoleDir, port);
+				// window.showInformationMessage(`Successfully bundled API Console on ${api.label}.`);
 
-			window.showInformationMessage(`Successfully started API Console server at http://127.0.0.1:${port}/`);
-		}
-		catch (e) {
-			window.showInformationMessage(`Failed to bundle API Console on ${api.label}.\n\r${e.message}`);
-		}
-	});
+				let port = 8000;
 
-	// when the refresh button is used at the top of the API Console pane, run the refresh method in the implementation class
-	commands.registerCommand('apiConsole.refreshEntry', () => RAMLAPIsProvider.refresh());
+				startConsoleServer(consoleDir, port);
+
+				window.showInformationMessage(`Successfully started API Console server at http://127.0.0.1:${port}/`);
+			}
+			catch (e) {
+				window.showInformationMessage(`Failed to bundle API Console on ${api.label}.\n\r${e.message}`);
+			}
+		});
+
+		// when the refresh button is used at the top of the API Console pane, run the refresh method in the implementation class
+		commands.registerCommand('apiConsole.refreshEntry', () => RAMLAPIsProvider.refresh());
+	}
 
 	//#endregion
 

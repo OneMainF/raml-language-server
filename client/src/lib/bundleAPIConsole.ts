@@ -7,7 +7,8 @@ export default async (outDir: string, api: RAMLAPI) => {
 	const project = new consoleBuilder.ApiConsoleProject({
 		destination: outDir,
 		api: api.FilePath,
-		apiType: 'RAML 1.0'
+		apiType: 'RAML 1.0',
+		exitOnError: false
 	});
 
 	await project.bundle();
