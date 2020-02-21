@@ -4,7 +4,7 @@
 	"description": "An extension for VS Code that performs validation of RAML files.",
 	"publisher": "OneMain",
 	"license": "GNU",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"icon": "icon.png",
 	"repository": {
 		"type": "git",
@@ -24,13 +24,57 @@
 		"vscode": "^1.33.0"
 	},
 	"activationEvents": [
-		"onLanguage:raml"
+		"onLanguage:raml",
+		"onView:apiConsole"
 	],
 	"main": "./client/out/extension",
 	"extensionDependencies": [
 		"jeppeandersen.raml"
 	],
 	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "apiConsole",
+					"title": "API Console",
+					"name": "API Console"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "apiConsole.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "apiConsole.openConsole",
+				"title": "Start Console",
+				"icon": {
+					"light": "resources/light/terminal.svg",
+					"dark": "resources/dark/terminal.svg"
+				}
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "apiConsole.refreshEntry",
+					"when": "view == apiConsole",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "apiConsole.openConsole",
+					"when": "view == apiConsole",
+					"group": "inline"
+				}
+			]
+		},
 		"configuration": {
 			"type": "object",
 			"title": "RAML LS",
@@ -54,17 +98,19 @@
 				}
 			}
 		},
-		"languages": [{
-			"id": "raml",
-			"extensions": [
-				".raml"
-			],
-			"aliases": [
-				"RAML",
-				"raml",
-				"RAML 1.0"
-			]
-		}]
+		"languages": [
+			{
+				"id": "raml",
+				"extensions": [
+					".raml"
+				],
+				"aliases": [
+					"RAML",
+					"raml",
+					"RAML 1.0"
+				]
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",

@@ -1,6 +1,6 @@
 #%RAML 1.0
-version: wrong
-title: sample-api
+version: v1
+title: users-api
 
 /users:
   get:
@@ -8,7 +8,8 @@ title: sample-api
     queryParameters: 
       first_name:
         description: the first name of the user to search for
-        type: number
+        type: string
+        pattern: ^\w*$
         required: false
     responses: 
       200:
