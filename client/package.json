@@ -21,7 +21,7 @@
 	"dependencies": {
 		"@api-components/api-console-builder": "^2.0.6",
 		"amf-client-js": "4.0.3",
-		"api-console-builder": "^0.4.11",
+		"api-console-builder": "^1.0.4",
 		"node-http-server": "8.1.2",
 		"open": "^7.0.1",
 		"vscode-languageclient": "^5.2.1"
